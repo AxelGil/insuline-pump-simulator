@@ -8,40 +8,72 @@ from .models.simulator import Simulator
 
 main = Blueprint('main', __name__)
 
-# Initial setup for the pump, patient, CGM, controller, and simulator
-basal_rates = [0.8, 0.6, 0.5]  # Example basal rates
-config = PumpConfig(basal_rates, 10, 30, 10)
+# Setup for the insulin pump simulator
+config = PumpConfig()
 patient = Patient(120)
-pump = InsulinPump(config, patient)  # Pass the patient object
+pump = InsulinPump(config, patient)
 cgm = CGM(5)
 controller = ClosedLoopController(120, pump, cgm)
 simulator = Simulator(patient, pump, cgm, controller)
 
-
-@main.route('/simulation', methods=['GET'])
-def run_simulation():
-    """
-    Runs the simulation for 24 hours and returns the results.
-    """
-    results = []
-    for hour, glucose in simulator.run_simulation():
-        results.append({'hour': hour, 'glucose': glucose})
-
-    return jsonify(results), 200
-
-@main.route('/config', methods=['POST'])
-def configure_pump():
-    """
-    Configures the pump parameters via a POST request.
-    """
+@main.route('/config/basal_rates', methods=['POST'])
+def configure_basal_rates():
     data = request.get_json()
     basal_rates = data.get('basal_rates')
-    insulin_to_carb_ratio = data.get('insulin_to_carb_ratio')
-    insulin_sensitivity_factor = data.get('insulin_sensitivity_factor')
+
+    if len(basal_rates) != 24:
+        return jsonify({"error": "Basal rates must have exactly 24 values (one for each hour)."}), 400
+
+    config.basal_rates = basal_rates
+    return jsonify({
+        "message": "Basal rates configured successfully.",
+        "basal_rates": config.basal_rates
+    }), 200
+
+@main.route('/config/insulin_to_carb_ratio', methods=['POST'])
+def configure_icr():
+    data = request.get_json()
+    ratio = data.get('insulin_to_carb_ratio')
+
+    config.insulin_to_carb_ratio = ratio
+    return jsonify({
+        "message": "Insulin-to-carb ratio configured successfully.",
+        "insulin_to_carb_ratio": config.insulin_to_carb_ratio
+    }), 200
+
+@main.route('/config/insulin_sensitivity_factor', methods=['POST'])
+def configure_isf():
+    data = request.get_json()
+    isf = data.get('insulin_sensitivity_factor')
+
+    config.insulin_sensitivity_factor = isf
+    return jsonify({
+        "message": "Insulin sensitivity factor configured successfully.",
+        "insulin_sensitivity_factor": config.insulin_sensitivity_factor
+    }), 200
+
+@main.route('/config/max_bolus', methods=['POST'])
+def configure_max_bolus():
+    data = request.get_json()
     max_bolus = data.get('max_bolus')
 
-    # Apply the new configuration
-    config = PumpConfig(basal_rates, insulin_to_carb_ratio, insulin_sensitivity_factor, max_bolus)
-    pump.apply_configuration(config)
+    config.max_bolus = max_bolus
+    return jsonify({
+        "message": "Max bolus configured successfully.",
+        "max_bolus": config.max_bolus
+    }), 200
 
-    return jsonify({"message": "Configuration successfully applied."}), 200
+@main.route('/config/custom_mode', methods=['POST'])
+def configure_custom_mode():
+    data = request.get_json()
+    mode_name = data.get('mode_name')
+    parameters = data.get('parameters')
+
+    config.set_custom_mode(mode_name, parameters)
+    return jsonify({
+        "message": f"Custom mode '{mode_name}' configured successfully.",
+        "mode": {
+            "name": mode_name,
+            "parameters": parameters
+        }
+    }), 200
