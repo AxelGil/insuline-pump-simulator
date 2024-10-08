@@ -15,3 +15,5 @@ python run.py
 ## run tests
 
 python -m unittest discover -s tests -v
+
+Corentin Laurent - Axel GIL

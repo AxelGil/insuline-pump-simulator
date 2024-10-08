@@ -5,16 +5,19 @@ from .models.patient import Patient
 from .models.cgm import CGM
 from .models.closed_loop_controller import ClosedLoopController
 from .models.simulator import Simulator
+from .models.pdm import PDM
 
 main = Blueprint('main', __name__)
 
 # Setup for the insulin pump simulator
-config = PumpConfig()
-patient = Patient(120)
+basal_rates = [0.8, 0.6, 0.5] + [0] * 21  # Example basal rates for 24 hours
+config = PumpConfig(basal_rates, 10, 30, 10)
+patient = Patient(120, 150, 100)
 pump = InsulinPump(config, patient)
 cgm = CGM(5)
 controller = ClosedLoopController(120, pump, cgm)
-simulator = Simulator(patient, pump, cgm, controller)
+pdm = PDM(pump, 120, controller, config)
+simulator = Simulator(patient, pump, cgm, controller, pdm, 24)
 
 @main.route('/config/basal_rates', methods=['POST'])
 def configure_basal_rates():
