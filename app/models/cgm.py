@@ -1,11 +1,13 @@
+import random
+
+from app.models.patient import Patient
+
+
 class CGM:
     def __init__(self, measurement_interval):
         self.measurement_interval = measurement_interval
-        self.current_glucose = 0
 
-    def measure_glucose(self, patient):
-        measured_glucose = patient.glucose_level
-        
-        self.current_glucose = measured_glucose
-
-        return measured_glucose
+    def measure_glucose(self, patient: Patient):
+        noise = random.uniform(-0.1, 0.1) 
+        self.current_glucose = patient.glucose_level + noise
+        return self.current_glucose

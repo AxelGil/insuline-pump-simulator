@@ -1,35 +1,48 @@
-class Simulator:
-    def __init__(self, patient, pump, cgm, controller, pdm, duration):
+import time
+from app.models.cgm import CGM
+from app.models.closed_loop_controller import ClosedLoopController
+from app.models.insulin_pump import InsulinPump
+from app.models.patient import Patient
+from app.models.pump_config import PumpConfig
+
+
+class InsulinPumpSimulator:
+    def __init__(self, 
+                 pump_config: PumpConfig, 
+                 patient: Patient, 
+                 insulin_pump: InsulinPump, 
+                 cgm: CGM, 
+                 closed_loop_controller: ClosedLoopController, 
+                 simulation_duration):
+        
+        self.pump_config = pump_config
         self.patient = patient
-        self.pump = pump
+        self.insulin_pump = insulin_pump
         self.cgm = cgm
-        self.controller = controller
-        self.pdm = pdm
-        self.duration = duration
+        self.closed_loop_controller = closed_loop_controller
+        self.simulation_duration = simulation_duration
 
     def run_simulation(self):
-        results = []
-        for hour in range(self.duration):
-            # Measure current glucose
+        for _ in range(self.simulation_duration):
+            # Simuler le passage du temps
+            time.sleep(1)  # Ajuster le pas de temps selon vos besoins
+
+            # Mesurer la glycémie
             current_glucose = self.cgm.measure_glucose(self.patient)
 
-            # Adjust basal rate
-            basal_rate = self.controller.adjust_basal_rate(current_glucose)
+            # Contrôle en boucle fermée
+            self.closed_loop_controller.control_loop(self.patient, current_glucose)
 
-            # Deliver insulin
-            self.pump.deliver_insulin(basal_rate)
+            # Mettre à jour l'état du patient
+            self.patient.update_state(current_glucose)
 
-            # Update patient's glucose level
-            self.patient.update_glucose_level(basal_rate, 0)
+            # Enregistrer les données
+            self.log_data(current_glucose, self.insulin_pump.last_bolus)
 
-            # Log data
-            self.log_data(hour, current_glucose, basal_rate)
 
-            results.append((hour, current_glucose, basal_rate))
-
-        return results
-
-    def log_data(self, hour, current_glucose, basal_rate):
-        # Log data to a file or database
-        with open("simulation_data.csv", "a") as f:
-            f.write(f"{hour},{current_glucose},{basal_rate}\n")
+    def log_data(self, glucose, insulin_dose):
+        self.data.append({
+            "time": time.time(),
+            "glucose": glucose,
+            "insulin": insulin_dose
+        })
