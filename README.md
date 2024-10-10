@@ -17,3 +17,5 @@ python run.py
 python -m unittest discover -s tests -v
 
 Corentin Laurent - Axel GIL
+
+Nous avons utilisé Chatgpt pour implémenter les classes et gagner du temps, comprendre certaines partie du sujet et surtout lire certaines erreurs qui était compliqué à lire pour la plupart (pour des nivices de python)
