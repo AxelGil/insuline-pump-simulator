@@ -12,6 +12,8 @@ pip install -r requirements.txt
 
 python run.py
 
+to stop -> new terminal : taskkill /F /IM python.exe
+
 ## run tests
 
 python -m unittest discover -s tests -v
