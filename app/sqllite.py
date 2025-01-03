@@ -16,7 +16,6 @@ cursor.execute('''
 
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS user_basal_rate (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, 
         id_user INTEGER, 
         basal_rate REAL
     );

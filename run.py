@@ -7,11 +7,9 @@ import app.pompe_insuline_app as appPompeInsuline
 import app.recepteur_dedie_app as appRecepteurDedie
 from flask import request
 
-# Event to signal all threads to stop
 stop_event = threading.Event()
 
 def run_flask_app(app, port):
-    """Run a Flask app and gracefully stop it when stop_event is set."""
     server = threading.current_thread()
     app.config['THREAD_NAME'] = server.name
     
@@ -25,7 +23,6 @@ def run_flask_app(app, port):
     
     app.run(debug=False, host="0.0.0.0", port=port, use_reloader=False)
 
-# Define run functions
 def runAppCgm():
     run_flask_app(appCgm.app, 5001)
 
