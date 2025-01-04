@@ -1,17 +1,25 @@
-from flask import Flask, request
+from flask import Flask, jsonify, request
 import requests
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-  return "Welcome to the pompe_insuline Microservice!"
+  return "Welcome to the recepteur_dedie Microservice!"
 
 @app.route('/transmettre', methods=['POST'])
 def transmettre():
   taux_glucose = request.json.get("taux_glucose")
+  user_id = request.json.get("user_id")
+  
+  if taux_glucose is None:
+        return jsonify({"error": "Taux de glucose est requis"}), 400
+
+  if user_id is None:
+      return jsonify({"error": "user_id est requis"}), 400
+  
   addicherDonnées(taux_glucose)
-  return transmettre_dexcom_platform(taux_glucose, request.json.get("user_id"))
+  return transmettre_dexcom_platform(taux_glucose, user_id)
   
 def transmettre_dexcom_platform(taux_glucose, user_id):
     payload = {"taux_glucose": taux_glucose, "user_id": user_id}

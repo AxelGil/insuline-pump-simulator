@@ -24,12 +24,6 @@ def mesurer():
         conn.close()
         return jsonify({"error": "Identifiant must be an integer"}), 400
       
-    # cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
-    # user = cursor.fetchone()
-    # user_dict = {"id": user[0], "name": user[1]}
-    # if not user:
-    #     return jsonify({"error": "User not found"}), 404
-      
     cursor.execute("INSERT INTO user_basal_rate (id_user, basal_rate) VALUES (?, ?)", (user_id, taux_glucose))
     conn.commit()
     conn.close()

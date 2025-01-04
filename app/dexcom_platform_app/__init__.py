@@ -10,11 +10,19 @@ def home():
 @app.route('/transmettre', methods=['POST'])
 def transmettre():
   taux_glucose = request.json.get("taux_glucose")
+  user_id = request.json.get("user_id")
+  
+  if not taux_glucose:
+    return {"error": "taux_glucose is required"}, 400
+  
+  if not user_id:
+    return {"error": "user_id is required"}, 400
+  
   check = checkBasalRate(int(taux_glucose))
   if check is not None:
     transmettre_recepteur_dedie(check)
   addicherDonnées(taux_glucose)
-  return transmettre_dexcom_platform(taux_glucose, request.json.get("user_id"))
+  return transmettre_dexcom_platform(taux_glucose, user_id)
 
 def transmettre_dexcom_platform(taux_glucose, user_id):
     payload = {"taux_glucose": taux_glucose, "user_id": user_id}
